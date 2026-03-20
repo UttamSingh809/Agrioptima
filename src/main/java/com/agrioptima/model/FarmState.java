@@ -25,6 +25,7 @@ public class FarmState {
      * Nested class representing the isolated state of a single plot.
      */
     public static class PlotState {
+        public static final int NO_PREVIOUS_CROP = -1;
         public int lastCropId;
         public int soilNitrogenLevel;
 

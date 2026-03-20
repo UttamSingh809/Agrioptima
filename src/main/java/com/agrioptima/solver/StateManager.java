@@ -6,7 +6,7 @@ package com.agrioptima.solver;
 
 import com.agrioptima.model.Crop; // needed to look up crop properties during state transitions
 import com.agrioptima.model.FarmState; // represents the state of the farm at a given season (soil levels, last crops, water)
-import com.agrioptima.model.PlotState; // represents the state of an individual plot (last crop planted, soil nitrogen level)
+import com.agrioptima.model.FarmState.PlotState; // represents the state of an individual plot (last crop planted, soil nitrogen level)
 
 import java.util.List;
 
@@ -81,14 +81,14 @@ public class StateManager {
         PlotState[] newPlotStates = new PlotState[numPlots];
         int totalWaterUsed = 0;
 
-        for (int i = 0;i<numPlots;++i) {
+        for (int i = 0; i < numPlots; ++i) {
             Crop crop = cropList.get(assignment[i]);
 
             // Soil update
             // Each crop adds or removes nitrogen from the soil.
             // nitrogenImpact can be negative (e.g. heavy feeders like corn)
             // or positive (e.g. legumes like soybeans fix nitrogen).
-            int currentSoil = current.getPlotStates()[i].getSoilNitrogen();
+            int currentSoil = current.getPlotStates()[i].soilNitrogenLevel;
             int newSoil     = clamp(currentSoil + crop.getNitrogenImpact(), SOIL_MIN, SOIL_MAX);
 
             newPlotStates[i] = new PlotState(

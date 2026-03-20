@@ -1,25 +1,33 @@
 package com.agrioptima.model;
 
+/**
+ * Represents a Crop entity in the AgriOptima system.
+ * Part of the Model layer implementation.
+ * This class encapsulates the core attributes and logic for individual crops,
+ * ensuring data integrity through private fields and public accessors.
+ */
 public class Crop {
-    String name;
-    int id;
-    int ProfitPerAcre;
-    int WaterPerAcre;
-    int nitrogenImpact;
-    int minRotationGap;
-    int[] SoilCompatibility;
-    double[] SeasonalMultiplier;
+
+    // Instance variables are strictly private to maintain model encapsulation
+    private String name;
+    private int id;
+    private int profitPerAcre;
+    private int waterPerAcre;
+    private int nitrogenImpact;
+    private int minRotationGap;
+    private int[] soilCompatibility;
+    private double[] seasonalMultiplier;
 
     public Crop(String name, int id, int profitPerAcre, int waterPerAcre, int nitrogenImpact,
                 int minRotationGap, int[] soilCompatibility, double[] seasonalMultiplier) {
         this.name = name;
         this.id = id;
-        ProfitPerAcre = profitPerAcre;
-        WaterPerAcre = waterPerAcre;
+        this.profitPerAcre = profitPerAcre;
+        this.waterPerAcre = waterPerAcre;
         this.nitrogenImpact = nitrogenImpact;
         this.minRotationGap = minRotationGap;
-        SoilCompatibility = soilCompatibility;
-        SeasonalMultiplier = seasonalMultiplier;
+        this.soilCompatibility = soilCompatibility;
+        this.seasonalMultiplier = seasonalMultiplier;
     }
 
     public String getName() {
@@ -31,7 +39,7 @@ public class Crop {
     }
 
     public int getId() {
-        return id;                // Returns crop's unique ID
+        return id;                  // Returns crop's unique ID
     }
 
     public void setId(int id) {
@@ -39,19 +47,19 @@ public class Crop {
     }
 
     public int getProfitPerAcre() {
-        return ProfitPerAcre;       // Returns base profit per acre
+        return profitPerAcre;       // Returns base profit per acre
     }
 
     public void setProfitPerAcre(int profitPerAcre) {
-        ProfitPerAcre = profitPerAcre;
+        this.profitPerAcre = profitPerAcre;
     }
 
     public int getWaterPerAcre() {
-        return WaterPerAcre;         // Returns water requirement
+        return waterPerAcre;         // Returns water requirement
     }
 
     public void setWaterPerAcre(int waterPerAcre) {
-        WaterPerAcre = waterPerAcre;
+        this.waterPerAcre = waterPerAcre;
     }
 
     public int getNitrogenImpact() {
@@ -71,27 +79,27 @@ public class Crop {
     }
 
     public int[] getSoilCompatibility() {
-        return SoilCompatibility;       // Returns allowed soil levels
+        return soilCompatibility;       // Returns allowed soil levels
     }
 
     public void setSoilCompatibility(int[] soilCompatibility) {
-        SoilCompatibility = soilCompatibility;
+        this.soilCompatibility = soilCompatibility;
     }
 
     public double[] getSeasonalMultiplier() {
-        return SeasonalMultiplier;       // Returns seasonal price factors
+        return seasonalMultiplier;       // Returns seasonal price factors
     }
 
     public void setSeasonalMultiplier(double[] seasonalMultiplier) {
-        SeasonalMultiplier = seasonalMultiplier;
+        this.seasonalMultiplier = seasonalMultiplier;
     }
 
     public int getProfitForSeason(int seasonIndex) {
-        return (int)(ProfitPerAcre * SeasonalMultiplier[seasonIndex]);  // Calculate profit for a specific season
+        return (int)(profitPerAcre * seasonalMultiplier[seasonIndex]);  // Calculate profit for a specific season
     }
 
     public boolean isCompatibleWithSoil(int soilLevel) {
-        for (int level : SoilCompatibility) {
+        for (int level : soilCompatibility) {
             if (level == soilLevel) return true;  // Check if crop can be planted on given soil level
         }
         return false;
@@ -99,6 +107,6 @@ public class Crop {
 
     @Override
     public String toString() {          // String representation for debugging
-        return name + " (ID: " + id + ", Profit: ₹" + ProfitPerAcre + ")";
+        return name + " (ID: " + id + ", Profit: ₹" + profitPerAcre + ")";
     }
 }

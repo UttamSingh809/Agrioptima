@@ -1,14 +1,15 @@
 package com.agrioptima.model;
 
+import java.util.Arrays;
+
 /**
  * Represents a Crop entity in the AgriOptima system.
  * Part of the Model layer implementation.
  * This class encapsulates the core attributes and logic for individual crops,
- * ensuring data integrity through private fields and public accessors.
+ * ensuring data integrity through strict encapsulation and defensive copying of arrays.
  */
 public class Crop {
 
-    // Instance variables are strictly private to maintain model encapsulation
     private String name;
     private int id;
     private int profitPerAcre;
@@ -18,95 +19,104 @@ public class Crop {
     private int[] soilCompatibility;
     private double[] seasonalMultiplier;
 
+    /**
+     * Full constructor for data loading.
+     * Applies basic string sanitization and defensive array copying.
+     */
     public Crop(String name, int id, int profitPerAcre, int waterPerAcre, int nitrogenImpact,
                 int minRotationGap, int[] soilCompatibility, double[] seasonalMultiplier) {
-        this.name = name;
+        this.name = name != null ? name.trim() : "Unknown";
         this.id = id;
         this.profitPerAcre = profitPerAcre;
         this.waterPerAcre = waterPerAcre;
         this.nitrogenImpact = nitrogenImpact;
         this.minRotationGap = minRotationGap;
-        this.soilCompatibility = soilCompatibility;
-        this.seasonalMultiplier = seasonalMultiplier;
+
+        // Defensive copying to prevent external array mutation
+        this.soilCompatibility = soilCompatibility != null ?
+                Arrays.copyOf(soilCompatibility, soilCompatibility.length) : new int[0];
+
+        this.seasonalMultiplier = seasonalMultiplier != null ?
+                Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length) : new double[0];
     }
 
-    public String getName() {
-        return name;                // Returns crop name (for display)
-    }
+    // --- Primitive Getters and Setters ---
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name != null ? name.trim() : "Unknown"; }
 
-    public int getId() {
-        return id;                  // Returns crop's unique ID
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public int getProfitPerAcre() { return profitPerAcre; }
+    public void setProfitPerAcre(int profitPerAcre) { this.profitPerAcre = profitPerAcre; }
 
-    public int getProfitPerAcre() {
-        return profitPerAcre;       // Returns base profit per acre
-    }
+    public int getWaterPerAcre() { return waterPerAcre; }
+    public void setWaterPerAcre(int waterPerAcre) { this.waterPerAcre = waterPerAcre; }
 
-    public void setProfitPerAcre(int profitPerAcre) {
-        this.profitPerAcre = profitPerAcre;
-    }
+    public int getNitrogenImpact() { return nitrogenImpact; }
+    public void setNitrogenImpact(int nitrogenImpact) { this.nitrogenImpact = nitrogenImpact; }
 
-    public int getWaterPerAcre() {
-        return waterPerAcre;         // Returns water requirement
-    }
+    public int getMinRotationGap() { return minRotationGap; }
+    public void setMinRotationGap(int minRotationGap) { this.minRotationGap = minRotationGap; }
 
-    public void setWaterPerAcre(int waterPerAcre) {
-        this.waterPerAcre = waterPerAcre;
-    }
+    // --- Array Getters and Setters (Secured) ---
 
-    public int getNitrogenImpact() {
-        return nitrogenImpact;      // Returns N-impact (-1, 0, +1)
-    }
-
-    public void setNitrogenImpact(int nitrogenImpact) {
-        this.nitrogenImpact = nitrogenImpact;
-    }
-
-    public int getMinRotationGap() {
-        return minRotationGap;      // Returns rotation constraint
-    }
-
-    public void setMinRotationGap(int minRotationGap) {
-        this.minRotationGap = minRotationGap;
-    }
-
+    /**
+     * Returns a copy of the array to prevent external code from modifying the internal state.
+     */
     public int[] getSoilCompatibility() {
-        return soilCompatibility;       // Returns allowed soil levels
+        return Arrays.copyOf(soilCompatibility, soilCompatibility.length);
     }
 
+    /**
+     * Stores a copy of the incoming array to maintain encapsulation.
+     */
     public void setSoilCompatibility(int[] soilCompatibility) {
-        this.soilCompatibility = soilCompatibility;
+        this.soilCompatibility = soilCompatibility != null ?
+                Arrays.copyOf(soilCompatibility, soilCompatibility.length) : new int[0];
     }
 
+    /**
+     * Returns a copy of the array to prevent external code from modifying the internal state.
+     */
     public double[] getSeasonalMultiplier() {
-        return seasonalMultiplier;       // Returns seasonal price factors
+        return Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length);
     }
 
+    /**
+     * Stores a copy of the incoming array to maintain encapsulation.
+     */
     public void setSeasonalMultiplier(double[] seasonalMultiplier) {
-        this.seasonalMultiplier = seasonalMultiplier;
+        this.seasonalMultiplier = seasonalMultiplier != null ?
+                Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length) : new double[0];
     }
 
+    // --- Utility Methods ---
+
+    /**
+     * Calculates the profit for a specific season.
+     * Safely handles out-of-bounds season requests.
+     */
     public int getProfitForSeason(int seasonIndex) {
-        return (int)(profitPerAcre * seasonalMultiplier[seasonIndex]);  // Calculate profit for a specific season
+        if (seasonIndex < 0 || seasonIndex >= seasonalMultiplier.length) {
+            return 0; // Safe fallback if solver asks for an invalid season
+        }
+        return (int)(profitPerAcre * seasonalMultiplier[seasonIndex]);
     }
 
+    /**
+     * Checks if the crop can be planted on the given soil level.
+     */
     public boolean isCompatibleWithSoil(int soilLevel) {
         for (int level : soilCompatibility) {
-            if (level == soilLevel) return true;  // Check if crop can be planted on given soil level
+            if (level == soilLevel) return true;
         }
         return false;
     }
 
     @Override
-    public String toString() {          // String representation for debugging
+    public String toString() {
         return name + " (ID: " + id + ", Profit: ₹" + profitPerAcre + ")";
     }
 }

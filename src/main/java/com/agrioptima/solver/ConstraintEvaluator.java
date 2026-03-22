@@ -5,7 +5,7 @@ package com.agrioptima.solver;
 
 import com.agrioptima.model.Crop;
 import com.agrioptima.model.FarmState;
-import com.agrioptima.model.PlotState;
+import com.agrioptima.model.FarmState.PlotState;
 
 import java.util.List;
 public class ConstraintEvaluator {
@@ -61,7 +61,7 @@ public boolean isValid(FarmState state,int[] assignment,List<Crop>cropList) {
         return totalWaterNeeded<=state.getRemainingWater(); // valid if total water needed is within the remaining water budget
     }
     public boolean checkRotation(PlotState plotState,Crop crop) {
-        int lastCropId=plotState.getLastCropId();
+        int lastCropId=plotState.lastCropId;
         // No previous crop planted: rotation rule doesn't apply
         if (lastCropId==NO_CROP) {
             return true;
@@ -73,7 +73,7 @@ public boolean isValid(FarmState state,int[] assignment,List<Crop>cropList) {
         return true;
     }
     public boolean checkSoilSuitability(PlotState plotState,Crop crop) {
-        return plotState.getSoilNitrogen()>=crop.getMinSoilLevel();
+        return crop.isCompatibleWithSoil(plotState.soilNitrogenLevel);
     }
     /*  scorePenalty() gives a score adjustment that is added to raw profit:
     Subtracts points if water is overused.
@@ -120,16 +120,14 @@ public boolean isValid(FarmState state,int[] assignment,List<Crop>cropList) {
             Crop crop=cropList.get(assignment[i]);
             PlotState plot=plotStates[i];
             if (!checkRotation(plot, crop)) {
+                String lastCropName = (plot.lastCropId == NO_CROP) ? "None" : cropList.get(plot.lastCropId).getName();
                 return String.format("ROTATION: Plot %d — %s cannot follow %s (minRotationGap=%d).",
-                i,crop.getName(), crop.getName(), crop.getMinRotationGap());
+                i, crop.getName(), lastCropName, crop.getMinRotationGap());
             }
             if (!checkSoilSuitability(plot,crop)) {
-                String[] soilNames={"Low","Medium","High"};
                 return String.format(
-                    "SOIL: Plot %d — %s needs soil ≥ %d (%s) but plot has soil = %d (%s).",
-                    i, crop.getName(),
-                    crop.getMinSoilLevel(),soilNames[crop.getMinSoilLevel()],
-                    plot.getSoilNitrogen(),soilNames[plot.getSoilNitrogen()]);
+                    "SOIL: Plot %d — %s is not compatible with soil level %d.",
+                    i, crop.getName(), plot.soilNitrogenLevel);
             }
         }
         return "VALID";

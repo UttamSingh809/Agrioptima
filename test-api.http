@@ -1,0 +1,52 @@
+### Run AgriOptima Optimization
+POST http://localhost:8080/api/optimize
+Content-Type: application/json
+
+{
+  "numPlots": 2,
+  "totalSeasons": 4,
+  "waterBudget": 8000,
+  "initialSoil": 1,
+  "crops": [
+    {
+      "name": "Rice",
+      "id": 0,
+      "profitPerAcre": 3000,
+      "waterPerAcre": 2500,
+      "nitrogenImpact": -1,
+      "minRotationGap": 1,
+      "soilCompatibility": [1, 2],
+      "seasonalMultiplier": [1.0, 1.1]
+    },
+    {
+      "name": "Wheat",
+      "id": 1,
+      "profitPerAcre": 2500,
+      "waterPerAcre": 1800,
+      "nitrogenImpact": 0,
+      "minRotationGap": 0,
+      "soilCompatibility": [0, 1, 2],
+      "seasonalMultiplier": [1.1, 1.0]
+    },
+    {
+      "name": "Soybean",
+      "id": 2,
+      "profitPerAcre": 2000,
+      "waterPerAcre": 1500,
+      "nitrogenImpact": 1,
+      "minRotationGap": 0,
+      "soilCompatibility": [0, 1, 2],
+      "seasonalMultiplier": [1.0, 1.0]
+    },
+    {
+      "name": "Fallow",
+      "id": 3,
+      "profitPerAcre": 0,
+      "waterPerAcre": 0,
+      "nitrogenImpact": 1,
+      "minRotationGap": 0,
+      "soilCompatibility": [0, 1, 2],
+      "seasonalMultiplier": [1.0, 1.0]
+    }
+  ]
+}

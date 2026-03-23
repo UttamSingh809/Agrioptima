@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriOptima | Smart Crop Planning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ========================================
+       CSS VARIABLES & ROOT CONFIGURATION
+       ======================================== */
+    :root {
+      /* Primary Color Palette - Earthy Greens */
+      --primary-dark: #2d5a27;
+      --primary-green: #4a7c43;
+      --primary-light: #7aa96f;
+      --leaf-green: #6ba86d;
+      
+      /* Secondary Colors */
+      --soil-brown: #8b7355;
+      --soil-dark: #6b5344;
+      --wheat-gold: #d4a574;
+      --harvest-orange: #f4a460;
+      
+      /* Accent Colors */
+      --sky-blue: #87ceeb;
+      --water-blue: #5ab4e8;
+      --accent-blue: #0288d1;
+      
+      /* Neutral Colors */
+      --cream-bg: #faf9f6;
+      --light-gray: #f5f4f1;
+      --medium-gray: #c7c4bf;
+      --dark-gray: #4a4a4a;
+      --text-dark: #2d2d2d;
+      
+      /* Effects */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
+      --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.18);
+      
+      /* Spacing */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --spacing-2xl: 32px;
+      --spacing-3xl: 48px;
+    }
+
+    /* ========================================
+       GLOBAL STYLES
+       ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--cream-bg) 0%, #f2efe8 100%);
+      color: var(--text-dark);
+      line-height: 1.6;
+      font-size: 16px;
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle background texture */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(45deg, rgba(74, 124, 67, 0.03) 1px, transparent 1px),
+        linear-gradient(-45deg, rgba(74, 124, 67, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* ========================================
+       CONTAINER & LAYOUT
+       ======================================== */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--spacing-lg);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: var(--spacing-md);
+      }
+    }
+
+    /* ========================================
+       HEADER SECTION
+       ======================================== */
+    header {
+      position: relative;
+      text-align: center;
+      margin-bottom: var(--spacing-3xl);
+      padding: var(--spacing-3xl) var(--spacing-lg);
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--leaf-green) 100%);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    /* Header background pattern */
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,50 Q30,30 40,50 T60,50 T80,50" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/></svg>');
+      background-size: 60px 60px;
+      animation: driftingSlow 20s linear infinite;
+      opacity: 0.1;
+    }
+
+    header::after {
+      content: "🌾";
+      position: absolute;
+      font-size: 200px;
+      opacity: 0.15;
+      right: -20px;
+      top: -30px;
+      animation: sway 4s ease-in-out infinite;
+    }
+
+    header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      color: white;
+      margin-bottom: var(--spacing-md);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+      animation: growthPulse 2s ease-out;
+    }
+
+    header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      font-style: italic;
+      position: relative;
+      z-index: 1;
+      font-family: 'Caveat', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* ========================================
+       METRIC CARDS - KPI DASHBOARD
+       ======================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-3xl);
+    }
+
+    .kpi-card {
+      background: white;
+      border-radius: 16px;
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      min-height: 100px;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-green), var(--leaf-green));
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-green);
+    }
+
+    .kpi-icon {
+      font-size: 2.5rem;
+      min-width: 60px;
+      text-align: center;
+      animation: gentle-float 3s ease-in-out infinite;
+    }
+
+    .kpi-content {
+      flex: 1;
+    }
+
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      line-height: 1.2;
+    }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      color: var(--medium-gray);
+      margin-top: var(--spacing-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    /* ========================================
+       SECTION STYLING
+       ======================================== */
+    .section {
+      background: white;
+      border-radius: 20px;
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-2xl);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(74, 124, 67, 0.1);
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--light-gray);
+    }
+
+    .section-icon {
+      font-size: 1.8rem;
+    }
+
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    /* ========================================
+       FORM GROUPS & INPUTS
+       ======================================== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+    }
+
+    .label-icon {
+      font-size: 1.2rem;
+      min-width: 20px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: 2px solid var(--light-gray);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      background: var(--cream-bg);
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-green);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(74, 124, 67, 0.1);
+    }
+
+    /* ========================================
+       SLIDER STYLING
+       ======================================== */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--sky-blue), var(--primary-green));
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-green);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 4px 12px rgba(74, 124, 67, 0.3);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-green);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 4px 12px rgba(74, 124, 67, 0.3);
+    }
+
+    .slider-value {
+      font-weight: 600;
+      color: var(--primary-green);
+      min-width: 100px;
+      text-align: right;
+      font-size: 1rem;
+    }
+
+    .slider-label {
+      font-size: 0.85rem;
+      color: var(--medium-gray);
+      margin-top: var(--spacing-xs);
+    }
+
+    /* ========================================
+       BUTTON STYLING
+       ======================================== */
+    .btn {
+      padding: var(--spacing-md) var(--spacing-xl);
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-green), var(--leaf-green));
+      color: white;
+      box-shadow: 0 4px 12px rgba(74, 124, 67, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(74, 124, 67, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--water-blue);
+      color: white;
+      box-shadow: 0 4px 12px rgba(90, 180, 232, 0.2);
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(90, 180, 232, 0.3);
+    }
+
+    .btn-accent {
+      background: var(--wheat-gold);
+      color: white;
+      box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+    }
+
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212, 165, 116, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ========================================
+       CROP LIBRARY & DRAG-DROP
+       ======================================== */
+    .crop-library {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+      padding: var(--spacing-lg);
+      background: var(--light-gray);
+      border-radius: 16px;
+    }
+
+    .crop-card {
+      background: white;
+      border: 2px solid var(--primary-green);
+      border-radius: 12px;
+      padding: var(--spacing-md);
+      text-align: center;
+      cursor: grab;
+      transition: all 0.3s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .crop-card:active {
+      cursor: grabbing;
+    }
+
+    .crop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(74, 124, 67, 0.2);
+      border-color: var(--leaf-green);
+    }
+
+    .crop-card.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+
+    .crop-icon {
+      font-size: 2rem;
+    }
+
+    .crop-name {
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 0.9rem;
+    }
+
+    /* ========================================
+       CROP TABLE
+       ======================================== */
+    .crop-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--spacing-lg);
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .crop-table th {
+      background: linear-gradient(135deg, var(--primary-green), var(--leaf-green));
+      color: white;
+      padding: var(--spacing-md);
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .crop-table td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .crop-table tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    .crop-table tbody tr:nth-child(odd) {
+      background: #fafafa;
+    }
+
+    .crop-table tbody tr:hover {
+      background: rgba(74, 124, 67, 0.05);
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .crop-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .crop-table input {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    /* ========================================
+       OPTIMIZATION GOAL CARDS
+       ======================================== */
+    .goal-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .goal-card {
+      padding: var(--spacing-lg);
+      border: 2px solid var(--light-gray);
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .goal-card:hover {
+      border-color: var(--primary-green);
+      box-shadow: 0 4px 12px rgba(74, 124, 67, 0.1);
+    }
+
+    .goal-card.active {
+      border-color: var(--primary-green);
+      background: rgba(74, 124, 67, 0.05);
+      box-shadow: 0 6px 16px rgba(74, 124, 67, 0.15);
+    }
+
+    .goal-icon {
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .goal-label {
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+    }
+
+    /* ========================================
+       SCHEDULE TABLE
+       ======================================== */
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--spacing-lg);
+    }
+
+    .schedule-table th {
+      background: linear-gradient(135deg, var(--soil-dark), var(--soil-brown));
+      color: white;
+      padding: var(--spacing-md);
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .schedule-table td {
+      padding: var(--spacing-md);
+      text-align: center;
+      border: 1px solid var(--light-gray);
+      background: white;
+    }
+
+    .schedule-table tbody tr:nth-child(odd) td {
+      background: #fafafa;
+    }
+
+    .plot-cell {
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: var(--spacing-md);
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary-light), var(--leaf-green));
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .plot-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .plot-cell-icon {
+      font-size: 1.8rem;
+      margin-bottom: var(--spacing-xs);
+      animation: sway 3s ease-in-out infinite;
+    }
+
+    /* ========================================
+       LOADING & RESULTS
+       ======================================== */
+    #loading {
+      text-align: center;
+      padding: var(--spacing-3xl);
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--light-gray);
+      border-top-color: var(--primary-green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto var(--spacing-lg);
+    }
+
+    .loading-text {
+      font-size: 1.1rem;
+      color: var(--primary-green);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .loading-messages {
+      font-size: 0.9rem;
+      color: var(--medium-gray);
+      font-style: italic;
+    }
+
+    #results {
+      display: none;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* ========================================
+       ALERTS
+       ======================================== */
+    .alert {
+      padding: var(--spacing-lg);
+      border-radius: 12px;
+      margin-bottom: var(--spacing-lg);
+      font-weight: 500;
+      display: none;
+      animation: slideInDown 0.4s ease-out;
+      border-left: 4px solid transparent;
+    }
+
+    .alert-success {
+      background: rgba(74, 124, 67, 0.1);
+      color: var(--primary-dark);
+      border-left-color: var(--primary-green);
+    }
+
+    .alert-error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #c62828;
+      border-left-color: #dc3545;
+    }
+
+    /* ========================================
+       ANIMATIONS
+       ======================================== */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes growthPulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.02);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes sway {
+      0%, 100% {
+        transform: rotate(-1deg) translateY(0);
+      }
+      50% {
+        transform: rotate(1deg) translateY(-2px);
+      }
+    }
+
+    @keyframes gentle-float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @keyframes driftingSlow {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========================================
+       RESPONSIVE DESIGN
+       ======================================== */
+    @media (max-width: 1024px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: var(--spacing-xl);
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: var(--spacing-xl) var(--spacing-lg);
+        margin-bottom: var(--spacing-2xl);
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      header p {
+        font-size: 1rem;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+      }
+
+      .kpi-card {
+        min-height: 80px;
+      }
+
+      .section {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+        border-radius: 16px;
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+      }
+
+      .crop-library {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-sm);
+      }
+
+      .crop-card {
+        padding: var(--spacing-sm);
+      }
+
+      .crop-icon {
+        font-size: 1.5rem;
+      }
+
+      .crop-name {
+        font-size: 0.8rem;
+      }
+
+      .goal-selector {
+        grid-template-columns: 1fr;
+      }
+
+      .slider-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .slider-value {
+        text-align: left;
+        min-width: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: var(--spacing-md);
+      }
+
+      header {
+        padding: var(--spacing-xl) var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .kpi-grid {
+        gap: var(--spacing-sm);
+      }
+
+      .kpi-card {
+        padding: var(--spacing-md);
+        min-height: 70px;
+      }
+
+      .kpi-icon {
+        font-size: 2rem;
+        min-width: 50px;
+      }
+
+      .kpi-value {
+        font-size: 1.2rem;
+      }
+
+      .kpi-label {
+        font-size: 0.7rem;
+      }
+
+      .section {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .section-header {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .crop-library {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-xs);
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+      }
+
+      .btn {
+        width: 100%;
+        padding: var(--spacing-md) var(--spacing-lg);
+      }
+
+      .crop-table {
+        font-size: 0.85rem;
+      }
+
+      .crop-table th,
+      .crop-table td {
+        padding: var(--spacing-sm);
+      }
+    }
+
+    /* ========================================
+       VALIDATION STATES
+       ======================================== */
+    .form-group.valid input {
+      border-color: var(--primary-green);
+      background: rgba(74, 124, 67, 0.05);
+    }
+
+    .form-group.error input {
+      border-color: #dc3545;
+      background: rgba(220, 53, 69, 0.05);
+    }
+
+    .validation-icon {
+      display: none;
+      font-size: 1.2rem;
+      margin-left: var(--spacing-sm);
+    }
+
+    .form-group.valid .validation-icon {
+      display: inline;
+      color: var(--primary-green);
+    }
+
+    /* ========================================
+       ACCESSIBILITY
+       ======================================== */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Focus visible for keyboard navigation */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid var(--primary-green);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <header>
+      <h1>🌾 AgriOptima</h1>
+      <p>Your AI-powered crop rotation planner for maximum profit & soil health</p>
+    </header>
+
+    <!-- KPI DASHBOARD -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-content">
+          <div class="kpi-value" id="kpi-profit">₹0</div>
+          <div class="kpi-label">Projected Profit</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💧</div>
+        <div class="kpi-content">
+          <div class="kpi-value" id="kpi-water">0%</div>
+          <div class="kpi-label">Water Used</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🌱</div>
+        <div class="kpi-content">
+          <div class="kpi-value" id="kpi-soil">+0</div>
+          <div class="kpi-label">Soil Health Δ</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🌾</div>
+        <div class="kpi-content">
+          <div class="kpi-value" id="kpi-plots">0/0</div>
+          <div class="kpi-label">Plots Cultivated</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FARM CONFIGURATION SECTION -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🚜</span>
+        <h2 class="section-title">Farm Configuration</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="numPlots">
+            <span class="label-icon">📏</span>
+            Number of Plots
+          </label>
+          <input type="number" id="numPlots" min="1" value="4" aria-label="Number of plots on farm">
+        </div>
+
+        <div class="form-group">
+          <label for="totalSeasons">
+            <span class="label-icon">📅</span>
+            Planning Years
+          </label>
+          <input type="number" id="totalSeasons" min="1" value="2" aria-label="Number of years to plan">
+        </div>
+
+        <div class="form-group">
+          <label for="waterBudget">
+            <span class="label-icon">💧</span>
+            Water Budget (Liters)
+          </label>
+          <input type="number" id="waterBudget" min="1000" value="10000" aria-label="Total water budget">
+        </div>
+
+        <div class="form-group">
+          <label for="initialSoil">
+            <span class="label-icon">🌍</span>
+            Initial Soil Level
+          </label>
+          <select id="initialSoil" aria-label="Initial soil fertility level">
+            <option value="0">Low (0) - Poor soil condition</option>
+            <option value="1" selected>Medium (1) - Normal condition</option>
+            <option value="2">High (2) - Rich, fertile soil</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- CROP PRESETS -->
+      <div style="margin-bottom: var(--spacing-xl);">
+        <label style="display: block; margin-bottom: var(--spacing-lg); font-weight: 600; color: var(--primary-dark);">
+          <span style="font-size: 1.2rem; margin-right: var(--spacing-sm);">🌾</span> Crop Options
+        </label>
+        
+        <p style="color: var(--medium-gray); margin-bottom: var(--spacing-md); font-size: 0.9rem;">
+          <strong>Pro Tip:</strong> Drag crops from the library below to add them to your farm selection.
+        </p>
+
+        <div class="crop-library" id="cropLibrary">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- CROP TABLE -->
+        <table class="crop-table">
+          <thead>
+            <tr>
+              <th>Crop</th>
+              <th>Profit (₹/acre)</th>
+              <th>Water (L/acre)</th>
+              <th>N Impact</th>
+              <th>Rotation Gap</th>
+              <th>Soil Level (0,1,2)</th>
+              <th>Kharif Mult.</th>
+              <th>Rabi Mult.</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cropRows">
+            <!-- Populated by JavaScript -->
+          </tbody>
+        </table>
+
+        <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+          <button class="btn btn-secondary" id="addCropBtn" aria-label="Add new crop row">
+            ➕ Add Crop Row
+          </button>
+          <button class="btn btn-secondary" id="clearCropsBtn" aria-label="Clear all crops">
+            🗑️ Clear All
+          </button>
+        </div>
+      </div>
+
+      <!-- GENERATE PLAN BUTTON -->
+      <div style="text-align: right; margin-top: var(--spacing-xl);">
+        <button class="btn btn-primary" id="runBtn" style="font-size: 1.1rem; padding: var(--spacing-lg) var(--spacing-2xl);">
+          🚀 Generate Optimal Plan
+        </button>
+      </div>
+    </div>
+
+    <!-- WHAT-IF ANALYSIS SECTION -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🔍</span>
+        <h2 class="section-title">What-If Analysis</h2>
+      </div>
+
+      <!-- WATER BUDGET SLIDER -->
+      <div class="form-group" style="margin-bottom: var(--spacing-xl);">
+        <label for="waterSlider" style="margin-bottom: var(--spacing-md);">
+          <span class="label-icon">💧</span>
+          Water Budget Adjustment
+        </label>
+        <div class="slider-wrapper">
+          <input type="range" id="waterSlider" min="5000" max="20000" value="10000" aria-label="Adjust water budget">
+          <span class="slider-value" id="waterSliderVal">10,000 L</span>
+        </div>
+        <div class="slider-label">Explore different water constraints to see impact on profit and sustainability</div>
+      </div>
+
+      <!-- OPTIMIZATION GOAL SELECTOR -->
+      <div style="margin-bottom: var(--spacing-xl);">
+        <label style="display: block; margin-bottom: var(--spacing-lg); font-weight: 600; color: var(--primary-dark);">
+          <span style="font-size: 1.2rem; margin-right: var(--spacing-sm);">⚙️</span> Optimization Goal
+        </label>
+        <div class="goal-selector" id="goalSelector" role="group" aria-label="Select optimization goal">
+          <div class="goal-card active" data-goal="profit">
+            <div class="goal-icon">💰</div>
+            <div class="goal-label">Maximize Profit</div>
+          </div>
+          <div class="goal-card" data-goal="soil">
+            <div class="goal-icon">🌱</div>
+            <div class="goal-label">Soil Health</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECALCULATE BUTTON -->
+      <button class="btn btn-accent" id="whatIfBtn" style="font-size: 1.1rem; padding: var(--spacing-md) var(--spacing-2xl); width: 100%; max-width: 300px;">
+        ⚖️ Recalculate with New Settings
+      </button>
+    </div>
+
+    <!-- LOADING INDICATOR -->
+    <div id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Computing optimal plan...</div>
+      <div class="loading-messages">
+        <p id="loadingMsg">This may take a few seconds. Analyzing your farm parameters...</p>
+      </div>
+    </div>
+
+    <!-- RESULTS SECTION -->
+    <div id="results">
+      <div class="alert alert-success" id="successMsg">
+        ✅ Optimization successful! Your plan is ready below.
+      </div>
+      <div class="alert alert-error" id="errorMsg">
+        ❌ Error: Please check console or try again.
+      </div>
+
+      <!-- SCHEDULE SECTION -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-icon">📅</span>
+          <h2 class="section-title">Seasonal Planting Schedule</h2>
+        </div>
+        <div id="scheduleContainer" style="overflow-x: auto;">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- METRICS SECTION -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-icon">📊</span>
+          <h2 class="section-title">Detailed Metrics</h2>
+        </div>
+        <ul style="padding-left: var(--spacing-xl); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); list-style: none; padding-left: 0;">
+          <li style="padding: var(--spacing-md); background: var(--light-gray); border-radius: 12px;">
+            <strong style="color: var(--primary-dark);">Total Profit:</strong>
+            <div style="font-size: 1.3rem; color: var(--primary-green); font-weight: 700; margin-top: var(--spacing-xs);" id="detail-profit">—</div>
+          </li>
+          <li style="padding: var(--spacing-md); background: var(--light-gray); border-radius: 12px;">
+            <strong style="color: var(--primary-dark);">Water Used:</strong>
+            <div style="font-size: 1.3rem; color: var(--water-blue); font-weight: 700; margin-top: var(--spacing-xs);" id="detail-water">—</div>
+          </li>
+          <li style="padding: var(--spacing-md); background: var(--light-gray); border-radius: 12px;">
+            <strong style="color: var(--primary-dark);">Soil Health Change:</strong>
+            <div style="font-size: 1.3rem; color: var(--leaf-green); font-weight: 700; margin-top: var(--spacing-xs);" id="detail-soil">—</div>
+          </li>
+          <li style="padding: var(--spacing-md); background: var(--light-gray); border-radius: 12px;">
+            <strong style="color: var(--primary-dark);">Rotation Compliance:</strong>
+            <div style="font-size: 1.3rem; color: var(--harvest-orange); font-weight: 700; margin-top: var(--spacing-xs);" id="detail-rotation">100%</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // ============================================
+    // PREDEFINED CROPS WITH EMOJI MAPPING
+    // ============================================
+    const defaultCrops = [
+      { name: "Rice", profit: 3000, water: 2500, nImpact: -1, rotGap: 1, soil: [1,2], kharif: 1.0, rabi: 1.1, emoji: "🌾" },
+      { name: "Wheat", profit: 2500, water: 1800, nImpact: 0, rotGap: 0, soil: [0,1,2], kharif: 1.1, rabi: 1.0, emoji: "🌾" },
+      { name: "Soybean", profit: 2000, water: 1500, nImpact: 1, rotGap: 0, soil: [0,1,2], kharif: 1.0, rabi: 1.0, emoji: "🥜" },
+      { name: "Maize", profit: 2200, water: 2000, nImpact: 0, rotGap: 1, soil: [0,1,2], kharif: 1.2, rabi: 0.8, emoji: "🌽" },
+      { name: "Sugarcane", profit: 3500, water: 3000, nImpact: -1, rotGap: 2, soil: [1,2], kharif: 1.0, rabi: 0.5, emoji: "🎋" },
+      { name: "Fallow", profit: 0, water: 0, nImpact: 1, rotGap: 0, soil: [0,1,2], kharif: 1.0, rabi: 1.0, emoji: "🧹" }
+    ];
+
+    // ============================================
+    // STATE MANAGEMENT
+    // ============================================
+    let selectedGoal = 'profit';
+    let loadingMessages = [
+      "Analyzing soil health...",
+      "Calculating water usage...",
+      "Optimizing crop rotation...",
+      "Evaluating profit potential...",
+      "Running dynamic programming solver...",
+      "Reconstructing optimal plan..."
+    ];
+    let currentMessageIndex = 0;
+
+    // ============================================
+    // DOM REFERENCES
+    // ============================================
+    const cropLibrary = document.getElementById('cropLibrary');
+    const cropRowsEl = document.getElementById('cropRows');
+    const addCropBtn = document.getElementById('addCropBtn');
+    const clearCropsBtn = document.getElementById('clearCropsBtn');
+    const runBtn = document.getElementById('runBtn');
+    const whatIfBtn = document.getElementById('whatIfBtn');
+    const loadingEl = document.getElementById('loading');
+    const resultsEl = document.getElementById('results');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    const scheduleContainer = document.getElementById('scheduleContainer');
+    const waterSlider = document.getElementById('waterSlider');
+    const waterSliderVal = document.getElementById('waterSliderVal');
+    const goalSelector = document.getElementById('goalSelector');
+    const loadingMsgEl = document.getElementById('loadingMsg');
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    function initializeApp() {
+      initCropLibrary();
+      initCropRows();
+      updateWaterSliderDisplay();
+      setupEventListeners();
+      
+      // Restore from localStorage if available
+      restoreDraft();
+    }
+
+    // ============================================
+    // CROP LIBRARY - DRAG & DROP
+    // ============================================
+    function initCropLibrary() {
+      cropLibrary.innerHTML = '';
+      defaultCrops.forEach(crop => {
+        const card = document.createElement('div');
+        card.className = 'crop-card';
+        card.draggable = true;
+        card.innerHTML = `
+          <div class="crop-icon">${crop.emoji}</div>
+          <div class="crop-name">${crop.name}</div>
+        `;
+
+        // Drag Start
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.effectAllowed = 'copy';
+          e.dataTransfer.setData('application/json', JSON.stringify(crop));
+          card.classList.add('dragging');
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+        });
+
+        // Double-click to add
+        card.addEventListener('dblclick', () => {
+          addCropRow(crop);
+        });
+
+        cropLibrary.appendChild(card);
+      });
+    }
+
+    // ============================================
+    // CROP ROWS MANAGEMENT
+    // ============================================
+    function initCropRows() {
+      cropRowsEl.innerHTML = '';
+      defaultCrops.forEach((crop, idx) => {
+        addCropRow(crop);
+      });
+    }
+
+    function addCropRow(crop = null) {
+      const row = document.createElement('tr');
+      const index = cropRowsEl.children.length;
+
+      const name = crop?.name || '';
+      const profit = crop?.profit || '';
+      const water = crop?.water || '';
+      const nImpact = crop?.nImpact || '';
+      const rotGap = crop?.rotGap || '';
+      const soil = crop?.soil?.join(',') || '0,1,2';
+      const kharif = crop?.kharif || 1.0;
+      const rabi = crop?.rabi || 1.0;
+
+      row.innerHTML = `
+        <td><input type="text" value="${name}" placeholder="Crop name" aria-label="Crop name row ${index + 1}"/></td>
+        <td><input type="number" value="${profit}" placeholder="0" aria-label="Profit per acre row ${index + 1}"/></td>
+        <td><input type="number" value="${water}" placeholder="0" aria-label="Water per acre row ${index + 1}"/></td>
+        <td><input type="number" value="${nImpact}" placeholder="0" aria-label="Nitrogen impact row ${index + 1}"/></td>
+        <td><input type="number" value="${rotGap}" placeholder="0" aria-label="Rotation gap row ${index + 1}"/></td>
+        <td><input type="text" value="${soil}" placeholder="0,1,2" aria-label="Soil levels row ${index + 1}"/></td>
+        <td><input type="number" step="0.1" value="${kharif}" placeholder="1.0" aria-label="Kharif multiplier row ${index + 1}"/></td>
+        <td><input type="number" step="0.1" value="${rabi}" placeholder="1.0" aria-label="Rabi multiplier row ${index + 1}"/></td>
+        <td><button class="btn btn-secondary" style="padding: var(--spacing-sm) var(--spacing-md); width: 100%;" onclick="this.closest('tr').remove()" aria-label="Delete crop row ${index + 1}">🗑️</button></td>
+      `;
+
+      cropRowsEl.appendChild(row);
+      saveDraft();
+    }
+
+    clearCropsBtn.addEventListener('click', () => {
+      if (confirm('Clear all crops and start fresh?')) {
+        cropRowsEl.innerHTML = '';
+        saveDraft();
+      }
+    });
+
+    addCropBtn.addEventListener('click', () => addCropRow());
+
+    // ============================================
+    // DRAG & DROP DROP ZONE
+    // ============================================
+    cropRowsEl.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+
+    cropRowsEl.addEventListener('drop', (e) => {
+      e.preventDefault();
+      try {
+        const crop = JSON.parse(e.dataTransfer.getData('application/json'));
+        addCropRow(crop);
+      } catch (err) {
+        console.error('Drop failed:', err);
+      }
+    });
+
+    // ============================================
+    // WATER SLIDER
+    // ============================================
+    function updateWaterSliderDisplay() {
+      waterSliderVal.textContent = Number(waterSlider.value).toLocaleString() + ' L';
+    }
+
+    waterSlider.addEventListener('input', updateWaterSliderDisplay);
+
+    // ============================================
+    // GOAL SELECTOR
+    // ============================================
+    goalSelector.addEventListener('click', (e) => {
+      const card = e.target.closest('.goal-card');
+      if (card) {
+        goalSelector.querySelectorAll('.goal-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedGoal = card.dataset.goal;
+      }
+    });
+
+    // ============================================
+    // OPTIMIZATION EXECUTION
+    // ============================================
+    async function runOptimization(useSlider = false) {
+      showLoading();
+      try {
+        const num = parseInt(document.getElementById('numPlots').value) || 4;
+        const totalSeasons = parseInt(document.getElementById('totalSeasons').value) || 2;
+        const waterBudget = useSlider ? 
+          parseInt(waterSlider.value) : 
+          parseInt(document.getElementById('waterBudget').value) || 10000;
+        const initialSoil = parseInt(document.getElementById('initialSoil').value) || 1;
+
+        // Collect crops
+        const crops = [];
+        document.querySelectorAll('#cropRows tr').forEach((row, index) => {
+          const cells = row.querySelectorAll('input');
+          const soilStr = cells[5]?.value.trim() || '0,1,2';
+          const soilVals = soilStr.split(',').map(s => {
+            const val = parseInt(s.trim());
+            return isNaN(val) ? 0 : val;
+          });
+
+          crops.push({
+            name: cells[0]?.value.trim() || 'Unknown',
+            id: index,
+            profitPerAcre: parseInt(cells[1]?.value) || 0,
+            waterPerAcre: parseInt(cells[2]?.value) || 0,
+            nitrogenImpact: parseInt(cells[3]?.value) || 0,
+            minRotationGap: parseInt(cells[4]?.value) || 0,
+            soilCompatibility: soilVals,
+            seasonalMultiplier: [
+              parseFloat(cells[6]?.value) || 1.0,
+              parseFloat(cells[7]?.value) || 1.0
+            ]
+          });
+        });
+
+        if (crops.length === 0) {
+          throw new Error('Please add at least one crop');
+        }
+
+        const request = {
+          numPlots: num,
+          totalSeasons: totalSeasons,
+          waterBudget: waterBudget,
+          initialSoil: initialSoil,
+          crops: crops
+        };
+
+        console.log('Sending optimization request:', request);
+
+        const response = await fetch('/api/optimize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        // Update KPIs
+        document.getElementById('kpi-profit').textContent = `₹${result.maxProfit.toLocaleString()}`;
+        document.getElementById('kpi-water').textContent = `${Math.round((result.metrics.totalWaterUsed / waterBudget) * 100)}%`;
+        document.getElementById('kpi-soil').textContent = `+${result.metrics.soilHealthChange}`;
+        document.getElementById('kpi-plots').textContent = `${num}/${num}`;
+
+        // Update details
+        document.getElementById('detail-profit').textContent = `₹${result.maxProfit.toLocaleString()}`;
+        document.getElementById('detail-water').textContent = `${result.metrics.totalWaterUsed.toLocaleString()} L`;
+        document.getElementById('detail-soil').textContent = `${result.metrics.soilHealthChange} level${Math.abs(result.metrics.soilHealthChange) !== 1 ? 's' : ''}`;
+
+        renderSchedule(result.schedule);
+
+        successMsg.style.display = 'block';
+        resultsEl.style.display = 'block';
+
+        // Save successful state
+        saveDraft();
+
+      } catch (err) {
+        console.error('Optimization failed:', err);
+        errorMsg.textContent = `❌ Error: ${err.message || 'Unknown error'}`;
+        errorMsg.style.display = 'block';
+      } finally {
+        hideLoading();
+      }
+    }
+
+    runBtn.addEventListener('click', () => runOptimization(false));
+    whatIfBtn.addEventListener('click', () => runOptimization(true));
+
+    // ============================================
+    // SCHEDULE RENDERING
+    // ============================================
+    function renderSchedule(schedule) {
+      let html = `<table class="schedule-table"><thead><tr><th>Season</th>`;
+      
+      for (let i = 0; i < schedule[0].length; i++) {
+        html += `<th>Plot ${i + 1}</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      const cropEmojis = {
+        'Rice': '🌾',
+        'Wheat': '🌾',
+        'Soybean': '🥜',
+        'Maize': '🌽',
+        'Sugarcane': '🎋',
+        'Fallow': '🧹'
+      };
+
+      schedule.forEach((season, sIdx) => {
+        const year = Math.floor(sIdx / 2) + 1;
+        const seasonLabel = sIdx % 2 === 0 ? `Year ${year} Kharif` : `Year ${year} Rabi`;
+        html += `<tr><td><strong>${seasonLabel}</strong></td>`;
+
+        season.forEach(cropName => {
+          const emoji = Object.entries(cropEmojis).find(([key]) => cropName.includes(key))?.[1] || '🌱';
+          html += `<td><div class="plot-cell"><span class="plot-cell-icon">${emoji}</span><span>${cropName}</span></div></td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      scheduleContainer.innerHTML = html;
+    }
+
+    // ============================================
+    // LOADING STATE
+    // ============================================
+    function showLoading() {
+      loadingEl.style.display = 'block';
+      resultsEl.style.display = 'none';
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+      
+      // Rotate messages
+      currentMessageIndex = 0;
+      const messageInterval = setInterval(() => {
+        if (loadingEl.style.display === 'none') {
+          clearInterval(messageInterval);
+        } else {
+          loadingMsgEl.textContent = loadingMessages[currentMessageIndex % loadingMessages.length];
+          currentMessageIndex++;
+        }
+      }, 1500);
+    }
+
+    function hideLoading() {
+      loadingEl.style.display = 'none';
+    }
+
+    // ============================================
+    // DRAFT PERSISTENCE
+    // ============================================
+    function saveDraft() {
+      const draft = {
+        numPlots: document.getElementById('numPlots').value,
+        totalSeasons: document.getElementById('totalSeasons').value,
+        waterBudget: document.getElementById('waterBudget').value,
+        initialSoil: document.getElementById('initialSoil').value,
+        crops: Array.from(cropRowsEl.querySelectorAll('tr')).map(row => {
+          const inputs = row.querySelectorAll('input');
+          return {
+            name: inputs[0]?.value,
+            profit: inputs[1]?.value,
+            water: inputs[2]?.value,
+            nImpact: inputs[3]?.value,
+            rotGap: inputs[4]?.value,
+            soil: inputs[5]?.value,
+            kharif: inputs[6]?.value,
+            rabi: inputs[7]?.value
+          };
+        })
+      };
+      localStorage.setItem('agrioptima_draft', JSON.stringify(draft));
+    }
+
+    function restoreDraft() {
+      const draft = localStorage.getItem('agrioptima_draft');
+      if (draft) {
+        try {
+          const data = JSON.parse(draft);
+          if (data.numPlots) document.getElementById('numPlots').value = data.numPlots;
+          if (data.totalSeasons) document.getElementById('totalSeasons').value = data.totalSeasons;
+          if (data.waterBudget) document.getElementById('waterBudget').value = data.waterBudget;
+          if (data.initialSoil) document.getElementById('initialSoil').value = data.initialSoil;
+          
+          if (data.crops && data.crops.length > 0) {
+            cropRowsEl.innerHTML = '';
+            data.crops.forEach(crop => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td><input type="text" value="${crop.name || ''}" placeholder="Crop name"/></td>
+                <td><input type="number" value="${crop.profit || ''}" placeholder="0"/></td>
+                <td><input type="number" value="${crop.water || ''}" placeholder="0"/></td>
+                <td><input type="number" value="${crop.nImpact || ''}" placeholder="0"/></td>
+                <td><input type="number" value="${crop.rotGap || ''}" placeholder="0"/></td>
+                <td><input type="text" value="${crop.soil || '0,1,2'}" placeholder="0,1,2"/></td>
+                <td><input type="number" step="0.1" value="${crop.kharif || 1.0}" placeholder="1.0"/></td>
+                <td><input type="number" step="0.1" value="${crop.rabi || 1.0}" placeholder="1.0"/></td>
+                <td><button class="btn btn-secondary" style="padding: var(--spacing-sm) var(--spacing-md); width: 100%;" onclick="this.closest('tr').remove(); saveDraft();">🗑️</button></td>
+              `;
+              cropRowsEl.appendChild(row);
+            });
+          }
+        } catch (err) {
+          console.error('Failed to restore draft:', err);
+        }
+      }
+    }
+
+    // Save draft on changes
+    document.addEventListener('change', saveDraft);
+    document.addEventListener('input', saveDraft);
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 's') {
+          e.preventDefault();
+          saveDraft();
+          alert('Draft saved!');
+        }
+      }
+    });
+
+    // ============================================
+    // INITIALIZE ON LOAD
+    // ============================================
+    window.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+</body>
+</html>

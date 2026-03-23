@@ -23,6 +23,16 @@ public class Crop {
      * Full constructor for data loading.
      * Applies basic string sanitization and defensive array copying.
      */
+    public Crop() {
+    this.name = "Unknown";
+    this.id = -1;
+    this.profitPerAcre = 0;
+    this.waterPerAcre = 0;
+    this.nitrogenImpact = 0;
+    this.minRotationGap = 0;
+    this.soilCompatibility = new int[0];
+    this.seasonalMultiplier = new double[0];
+}
     public Crop(String name, int id, int profitPerAcre, int waterPerAcre, int nitrogenImpact,
                 int minRotationGap, int[] soilCompatibility, double[] seasonalMultiplier) {
         this.name = name != null ? name.trim() : "Unknown";

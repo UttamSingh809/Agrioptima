@@ -6,7 +6,8 @@ import java.util.List;
 /**
  * OptimizationRequest.java
  *
- * Purpose: Represents the input data structure for the optimization API endpoint.
+ * Purpose: Represents the input data structure for the optimization API
+ * endpoint.
  * It holds the configuration of the farm and the list of available crops.
  */
 public class OptimizationRequest {
@@ -19,7 +20,8 @@ public class OptimizationRequest {
     private int initialSoil; // Initial soil nitrogen level for all plots (or default level)
 
     // Default constructor required by Jackson (JSON deserializer)
-    public OptimizationRequest() {}
+    public OptimizationRequest() {
+    }
 
     // Constructor with all fields
     public OptimizationRequest(List<Crop> crops, int numPlots, int totalSeasons, int waterBudget, int initialSoil) {

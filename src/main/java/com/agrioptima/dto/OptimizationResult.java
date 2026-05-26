@@ -5,8 +5,10 @@ import com.agrioptima.solver.PlanReconstructor;
 /**
  * OptimizationResult.java
  *
- * Purpose: Represents the output data structure for the optimization API endpoint.
- * It holds the optimal schedule, the calculated maximum profit, and associated metrics.
+ * Purpose: Represents the output data structure for the optimization API
+ * endpoint.
+ * It holds the optimal schedule, the calculated maximum profit, and associated
+ * metrics.
  */
 public class OptimizationResult {
 
@@ -15,7 +17,8 @@ public class OptimizationResult {
     private PlanReconstructor.PlanMetrics metrics; // Additional metrics like water used, soil change
 
     // Default constructor required by Jackson (JSON serializer)
-    public OptimizationResult() {}
+    public OptimizationResult() {
+    }
 
     // Constructor with all fields
     public OptimizationResult(String[][] schedule, double maxProfit, PlanReconstructor.PlanMetrics metrics) {

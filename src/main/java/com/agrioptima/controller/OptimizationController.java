@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 /**
  * OptimizationController.java
  *
- * Purpose: Defines the REST API endpoints for the AgriOptima optimization service.
+ * Purpose: Defines the REST API endpoints for the AgriOptima optimization
+ * service.
  * It receives requests, delegates the processing to the OptimizationService,
  * and returns the results or appropriate HTTP status codes.
  */

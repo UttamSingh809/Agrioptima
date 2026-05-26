@@ -4,18 +4,24 @@ import java.util.Arrays;
 
 /**
  * Represents the complete state of the farm at a given decision point (season).
- * This is the most critical class for the Dynamic Programming solver, as it defines
- * the state space. It uses strict equality and hash caching for efficient memoization.
+ * This is the most critical class for the Dynamic Programming solver, as it
+ * defines
+ * the state space. It uses strict equality and hash caching for efficient
+ * memoization.
  */
 public class FarmState {
 
     /** Current season index (0 to 2*years-1). Represents the time dimension. */
     private int season;
 
-    /** Array of plot-specific states tracking the history of each individual plot. */
+    /**
+     * Array of plot-specific states tracking the history of each individual plot.
+     */
     private PlotState[] plotStates;
 
-    /** Water left for the remaining seasons. Acts as a strict resource constraint. */
+    /**
+     * Water left for the remaining seasons. Acts as a strict resource constraint.
+     */
     private int remainingWater;
 
     /** Cached hash code for O(1) retrieval during DP memoization. */
@@ -79,7 +85,8 @@ public class FarmState {
 
     /**
      * Copy constructor used strictly for state transitions.
-     * Guarantees immutability of the parent state so the DP search tree isn't corrupted.
+     * Guarantees immutability of the parent state so the DP search tree isn't
+     * corrupted.
      *
      * @param other The previous FarmState to copy from.
      */
@@ -90,14 +97,19 @@ public class FarmState {
             this.plotStates[i] = new PlotState(other.plotStates[i]);
         }
         this.remainingWater = other.remainingWater;
-        // Note: hashCode is intentionally left as 0 so it recalculates for the new state
+        // Note: hashCode is intentionally left as 0 so it recalculates for the new
+        // state
     }
 
     // --- Getters ---
 
-    public int getSeason() { return season; }
+    public int getSeason() {
+        return season;
+    }
 
-    public int getTotalPlots() { return plotStates.length; }
+    public int getTotalPlots() {
+        return plotStates.length;
+    }
 
     /**
      * Returns a deep copy of the plot states to maintain strict encapsulation.
@@ -115,16 +127,23 @@ public class FarmState {
         return new PlotState(plotStates[plotIndex]);
     }
 
-    public int getRemainingWater() { return remainingWater; }
+    public int getRemainingWater() {
+        return remainingWater;
+    }
 
-    public int getLastCropId(int plotIndex) { return plotStates[plotIndex].lastCropId; }
+    public int getLastCropId(int plotIndex) {
+        return plotStates[plotIndex].lastCropId;
+    }
 
-    public int getSoilNitrogenLevel(int plotIndex) { return plotStates[plotIndex].soilNitrogenLevel; }
+    public int getSoilNitrogenLevel(int plotIndex) {
+        return plotStates[plotIndex].soilNitrogenLevel;
+    }
 
     // --- State Transition Logic ---
 
     /**
-     * Applies a crop assignment across all plots and generates the next chronological state.
+     * Applies a crop assignment across all plots and generates the next
+     * chronological state.
      * Encapsulates the transition logic and safely handles fallow land (-1).
      *
      * @param cropAssignment Array of crop IDs assigned to each plot.
@@ -166,17 +185,23 @@ public class FarmState {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof FarmState)) return false;
+        if (this == obj)
+            return true;
+        if (!(obj instanceof FarmState))
+            return false;
 
         FarmState other = (FarmState) obj;
-        if (this.season != other.season) return false;
-        if (this.remainingWater != other.remainingWater) return false;
+        if (this.season != other.season)
+            return false;
+        if (this.remainingWater != other.remainingWater)
+            return false;
 
         // Compare each plot state structurally
         for (int i = 0; i < this.plotStates.length; i++) {
-            if (this.plotStates[i].lastCropId != other.plotStates[i].lastCropId) return false;
-            if (this.plotStates[i].soilNitrogenLevel != other.plotStates[i].soilNitrogenLevel) return false;
+            if (this.plotStates[i].lastCropId != other.plotStates[i].lastCropId)
+                return false;
+            if (this.plotStates[i].soilNitrogenLevel != other.plotStates[i].soilNitrogenLevel)
+                return false;
         }
 
         return true;
@@ -184,7 +209,7 @@ public class FarmState {
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {  // Cache for performance
+        if (hashCode == 0) { // Cache for performance
             int result = season;
             result = 31 * result + remainingWater;
             for (PlotState ps : plotStates) {

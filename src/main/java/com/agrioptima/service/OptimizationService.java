@@ -14,8 +14,10 @@ import java.util.List;
 /**
  * OptimizationService.java
  *
- * Purpose: Orchestrates the interaction between the controller and the core DP solver.
- * It takes input from the API, initializes solver components, runs the optimization,
+ * Purpose: Orchestrates the interaction between the controller and the core DP
+ * solver.
+ * It takes input from the API, initializes solver components, runs the
+ * optimization,
  * reconstructs the plan, and prepares the result for the frontend.
  */
 @Service
@@ -26,7 +28,8 @@ public class OptimizationService {
     /**
      * Executes the core optimization process.
      *
-     * @param request The input parameters for the optimization (crops, farm config, etc.).
+     * @param request The input parameters for the optimization (crops, farm config,
+     *                etc.).
      * @return An OptimizationResult containing the schedule, profit, and metrics.
      */
     public OptimizationResult runOptimization(OptimizationRequest request) {
@@ -43,7 +46,8 @@ public class OptimizationService {
 
             // Validate input (basic check)
             if (crops == null || crops.isEmpty() || numPlots <= 0 || totalSeasons <= 0) {
-                throw new IllegalArgumentException("Invalid input: crops list is empty or farm dimensions are invalid.");
+                throw new IllegalArgumentException(
+                        "Invalid input: crops list is empty or farm dimensions are invalid.");
             }
 
             // 2. Initialize solver components
@@ -66,8 +70,7 @@ public class OptimizationService {
                     solver.getBackpointer(), // Critical: use the map from the solver instance
                     solver.getInitialState(), // Critical: use the initial state from the solver instance
                     crops,
-                    stateManager
-            );
+                    stateManager);
 
             logger.debug("Reconstructing schedule...");
             String[][] schedule = reconstructor.reconstructSchedule(solver.getInitialState());
@@ -84,7 +87,8 @@ public class OptimizationService {
         } catch (Exception e) {
             // Log the error with stack trace for debugging
             logger.error("Optimization failed due to an exception: {}", e.getMessage(), e);
-            // Re-throw as a runtime exception to be handled by a global exception handler if needed
+            // Re-throw as a runtime exception to be handled by a global exception handler
+            // if needed
             throw new RuntimeException("Optimization process failed: " + e.getMessage(), e);
         }
     }

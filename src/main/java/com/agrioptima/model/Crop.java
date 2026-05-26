@@ -6,7 +6,8 @@ import java.util.Arrays;
  * Represents a Crop entity in the AgriOptima system.
  * Part of the Model layer implementation.
  * This class encapsulates the core attributes and logic for individual crops,
- * ensuring data integrity through strict encapsulation and defensive copying of arrays.
+ * ensuring data integrity through strict encapsulation and defensive copying of
+ * arrays.
  */
 public class Crop {
 
@@ -24,17 +25,18 @@ public class Crop {
      * Applies basic string sanitization and defensive array copying.
      */
     public Crop() {
-    this.name = "Unknown";
-    this.id = -1;
-    this.profitPerAcre = 0;
-    this.waterPerAcre = 0;
-    this.nitrogenImpact = 0;
-    this.minRotationGap = 0;
-    this.soilCompatibility = new int[0];
-    this.seasonalMultiplier = new double[0];
-}
+        this.name = "Unknown";
+        this.id = -1;
+        this.profitPerAcre = 0;
+        this.waterPerAcre = 0;
+        this.nitrogenImpact = 0;
+        this.minRotationGap = 0;
+        this.soilCompatibility = new int[0];
+        this.seasonalMultiplier = new double[0];
+    }
+
     public Crop(String name, int id, int profitPerAcre, int waterPerAcre, int nitrogenImpact,
-                int minRotationGap, int[] soilCompatibility, double[] seasonalMultiplier) {
+            int minRotationGap, int[] soilCompatibility, double[] seasonalMultiplier) {
         this.name = name != null ? name.trim() : "Unknown";
         this.id = id;
         this.profitPerAcre = profitPerAcre;
@@ -43,37 +45,69 @@ public class Crop {
         this.minRotationGap = minRotationGap;
 
         // Defensive copying to prevent external array mutation
-        this.soilCompatibility = soilCompatibility != null ?
-                Arrays.copyOf(soilCompatibility, soilCompatibility.length) : new int[0];
+        this.soilCompatibility = soilCompatibility != null ? Arrays.copyOf(soilCompatibility, soilCompatibility.length)
+                : new int[0];
 
-        this.seasonalMultiplier = seasonalMultiplier != null ?
-                Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length) : new double[0];
+        this.seasonalMultiplier = seasonalMultiplier != null
+                ? Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length)
+                : new double[0];
     }
 
     // --- Primitive Getters and Setters ---
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name != null ? name.trim() : "Unknown"; }
+    public String getName() {
+        return name;
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public void setName(String name) {
+        this.name = name != null ? name.trim() : "Unknown";
+    }
 
-    public int getProfitPerAcre() { return profitPerAcre; }
-    public void setProfitPerAcre(int profitPerAcre) { this.profitPerAcre = profitPerAcre; }
+    public int getId() {
+        return id;
+    }
 
-    public int getWaterPerAcre() { return waterPerAcre; }
-    public void setWaterPerAcre(int waterPerAcre) { this.waterPerAcre = waterPerAcre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getNitrogenImpact() { return nitrogenImpact; }
-    public void setNitrogenImpact(int nitrogenImpact) { this.nitrogenImpact = nitrogenImpact; }
+    public int getProfitPerAcre() {
+        return profitPerAcre;
+    }
 
-    public int getMinRotationGap() { return minRotationGap; }
-    public void setMinRotationGap(int minRotationGap) { this.minRotationGap = minRotationGap; }
+    public void setProfitPerAcre(int profitPerAcre) {
+        this.profitPerAcre = profitPerAcre;
+    }
+
+    public int getWaterPerAcre() {
+        return waterPerAcre;
+    }
+
+    public void setWaterPerAcre(int waterPerAcre) {
+        this.waterPerAcre = waterPerAcre;
+    }
+
+    public int getNitrogenImpact() {
+        return nitrogenImpact;
+    }
+
+    public void setNitrogenImpact(int nitrogenImpact) {
+        this.nitrogenImpact = nitrogenImpact;
+    }
+
+    public int getMinRotationGap() {
+        return minRotationGap;
+    }
+
+    public void setMinRotationGap(int minRotationGap) {
+        this.minRotationGap = minRotationGap;
+    }
 
     // --- Array Getters and Setters (Secured) ---
 
     /**
-     * Returns a copy of the array to prevent external code from modifying the internal state.
+     * Returns a copy of the array to prevent external code from modifying the
+     * internal state.
      */
     public int[] getSoilCompatibility() {
         return Arrays.copyOf(soilCompatibility, soilCompatibility.length);
@@ -83,12 +117,13 @@ public class Crop {
      * Stores a copy of the incoming array to maintain encapsulation.
      */
     public void setSoilCompatibility(int[] soilCompatibility) {
-        this.soilCompatibility = soilCompatibility != null ?
-                Arrays.copyOf(soilCompatibility, soilCompatibility.length) : new int[0];
+        this.soilCompatibility = soilCompatibility != null ? Arrays.copyOf(soilCompatibility, soilCompatibility.length)
+                : new int[0];
     }
 
     /**
-     * Returns a copy of the array to prevent external code from modifying the internal state.
+     * Returns a copy of the array to prevent external code from modifying the
+     * internal state.
      */
     public double[] getSeasonalMultiplier() {
         return Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length);
@@ -98,8 +133,9 @@ public class Crop {
      * Stores a copy of the incoming array to maintain encapsulation.
      */
     public void setSeasonalMultiplier(double[] seasonalMultiplier) {
-        this.seasonalMultiplier = seasonalMultiplier != null ?
-                Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length) : new double[0];
+        this.seasonalMultiplier = seasonalMultiplier != null
+                ? Arrays.copyOf(seasonalMultiplier, seasonalMultiplier.length)
+                : new double[0];
     }
 
     // --- Utility Methods ---
@@ -112,7 +148,7 @@ public class Crop {
         if (seasonIndex < 0 || seasonIndex >= seasonalMultiplier.length) {
             return 0; // Safe fallback if solver asks for an invalid season
         }
-        return (int)(profitPerAcre * seasonalMultiplier[seasonIndex]);
+        return (int) (profitPerAcre * seasonalMultiplier[seasonIndex]);
     }
 
     /**
@@ -120,7 +156,8 @@ public class Crop {
      */
     public boolean isCompatibleWithSoil(int soilLevel) {
         for (int level : soilCompatibility) {
-            if (level == soilLevel) return true;
+            if (level == soilLevel)
+                return true;
         }
         return false;
     }

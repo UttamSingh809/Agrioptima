@@ -11,12 +11,12 @@ import com.agrioptima.model.FarmState.PlotState; // represents the state of an i
 import java.util.List;
 
 public class StateManager {
-    //Soil nitrogen is stored as an integer 0, 1, or 2.
-    public static final int SOIL_LOW    = 0;
+    // Soil nitrogen is stored as an integer 0, 1, or 2.
+    public static final int SOIL_LOW = 0;
     public static final int SOIL_MEDIUM = 1;
-    public static final int SOIL_HIGH   = 2;
+    public static final int SOIL_HIGH = 2;
 
-    //Minimum and maximum soil nitrogen values (for clamping).
+    // Minimum and maximum soil nitrogen values (for clamping).
     private static final int SOIL_MIN = SOIL_LOW;
     private static final int SOIL_MAX = SOIL_HIGH;
     /**
@@ -29,8 +29,9 @@ public class StateManager {
      * Example: 4 plots → each state tracks 4 PlotStates.
      */
     private final int numPlots;
-    
-    // Constructor takes the fixed parameters of the problem that define the state space.
+
+    // Constructor takes the fixed parameters of the problem that define the state
+    // space.
     public StateManager(int numPlots, int totalSeasons) {
         if (numPlots <= 0) {
             throw new IllegalArgumentException("numPlots must be > 0, got: " + numPlots);
@@ -38,7 +39,7 @@ public class StateManager {
         if (totalSeasons <= 0) {
             throw new IllegalArgumentException("totalSeasons must be > 0, got: " + totalSeasons);
         }
-        this.numPlots     = numPlots;
+        this.numPlots = numPlots;
         this.totalSeasons = totalSeasons;
     }
 
@@ -53,30 +54,31 @@ public class StateManager {
 
         // Build a PlotState for each plot — all identical at the start
         PlotState[] plotStates = new PlotState[numPlots];
-        for (int i = 0; i < numPlots;++i) {
+        for (int i = 0; i < numPlots; ++i) {
             plotStates[i] = new PlotState(
-                /* lastCropId      = */ PlotState.NO_PREVIOUS_CROP,  // nothing planted yet
-                /* soilNitrogen    = */ initialSoilLevel
-            );
+                    /* lastCropId = */ PlotState.NO_PREVIOUS_CROP, // nothing planted yet
+                    /* soilNitrogen = */ initialSoilLevel);
         }
 
         return new FarmState(
-            /* season          = */ 0,
-            /* plotStates      = */ plotStates,
-            /* remainingWater  = */ waterBudget
-        );
+                /* season = */ 0,
+                /* plotStates = */ plotStates,
+                /* remainingWater = */ waterBudget);
     }
 
     /**
-     * Computes the next FarmState after applying a crop assignment to the current state.
+     * Computes the next FarmState after applying a crop assignment to the current
+     * state.
+     * 
      * @param current    The current FarmState
      * @param assignment cropAssignment[i] = crop ID planted on plot i this season
-     * @param cropList   Full list of available crops (used to look up water/nitrogen values)
-     * @return           The resulting FarmState after applying the assignment
+     * @param cropList   Full list of available crops (used to look up
+     *                   water/nitrogen values)
+     * @return The resulting FarmState after applying the assignment
      * @throws IllegalArgumentException if assignment length doesn't match numPlots,
      *                                  or if a crop ID is out of range
      */
-    public FarmState transition(FarmState current,int[] assignment,List<Crop> cropList) {
+    public FarmState transition(FarmState current, int[] assignment, List<Crop> cropList) {
         validateAssignment(assignment, cropList.size());
         PlotState[] newPlotStates = new PlotState[numPlots];
         int totalWaterUsed = 0;
@@ -89,53 +91,60 @@ public class StateManager {
             // nitrogenImpact can be negative (e.g. heavy feeders like corn)
             // or positive (e.g. legumes like soybeans fix nitrogen).
             int currentSoil = current.getPlotStates()[i].soilNitrogenLevel;
-            int newSoil     = clamp(currentSoil + crop.getNitrogenImpact(), SOIL_MIN, SOIL_MAX);
+            int newSoil = clamp(currentSoil + crop.getNitrogenImpact(), SOIL_MIN, SOIL_MAX);
 
             newPlotStates[i] = new PlotState(
-                /* lastCropId   = */ crop.getId(),
-                /* soilNitrogen = */ newSoil
-            );
+                    /* lastCropId = */ crop.getId(),
+                    /* soilNitrogen = */ newSoil);
 
-            //Water tracking
-            totalWaterUsed+=crop.getWaterPerAcre();
+            // Water tracking
+            totalWaterUsed += crop.getWaterPerAcre();
         }
 
-        //Build and return the new state
+        // Build and return the new state
         return new FarmState(
-            /* season         = */ current.getSeason() + 1,
-            /* plotStates     = */ newPlotStates,
-            /* remainingWater = */ current.getRemainingWater() - totalWaterUsed
-        );
+                /* season = */ current.getSeason() + 1,
+                /* plotStates = */ newPlotStates,
+                /* remainingWater = */ current.getRemainingWater() - totalWaterUsed);
     }
 
-    /*  Helper — convenience overload without explicit cropList lookup
-        (useful in tests where you pass crop objects directly)
-        
+    /*
+     * Helper — convenience overload without explicit cropList lookup
+     * (useful in tests where you pass crop objects directly)
+     * 
      * Convenience method for a single-plot scenario or unit tests.
      * Computes how soil changes when a specific crop is planted.
      *
-     * @param currentSoil  Current soil nitrogen level (0, 1, or 2)
-     * @param crop         The crop being planted
-     * @return             New soil nitrogen level after planting
+     * @param currentSoil Current soil nitrogen level (0, 1, or 2)
+     * 
+     * @param crop The crop being planted
+     * 
+     * @return New soil nitrogen level after planting
      */
     public int computeNewSoil(int currentSoil, Crop crop) {
         validateSoilLevel(currentSoil, "currentSoil");
         return clamp(currentSoil + crop.getNitrogenImpact(), SOIL_MIN, SOIL_MAX);
     }
-    //Getters — used by other solver classes
-    public int getTotalSeasons() { return totalSeasons; }
-    public int getNumPlots()     { return numPlots; }
 
-    
-    /* Private helpers
+    // Getters — used by other solver classes
+    public int getTotalSeasons() {
+        return totalSeasons;
+    }
+
+    public int getNumPlots() {
+        return numPlots;
+    }
+
+    /*
+     * Private helpers
      * Clamps a value to [min, max].
      *
      * Used for soil nitrogen so it never goes below SOIL_LOW (0)
      * or above SOIL_HIGH (2), no matter what the crop's impact is.
      *
      * Example:
-     *   clamp(3, 0, 2) → 2    (high-nitrogen crop on already-rich soil)
-     *   clamp(-1, 0, 2) → 0   (heavy feeder on depleted soil)
+     * clamp(3, 0, 2) → 2 (high-nitrogen crop on already-rich soil)
+     * clamp(-1, 0, 2) → 0 (heavy feeder on depleted soil)
      */
     private int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
@@ -145,8 +154,7 @@ public class StateManager {
     private void validateSoilLevel(int soilLevel, String paramName) {
         if (soilLevel < SOIL_MIN || soilLevel > SOIL_MAX) {
             throw new IllegalArgumentException(
-                paramName + " must be 0 (Low), 1 (Medium), or 2 (High), got: " + soilLevel
-            );
+                    paramName + " must be 0 (Low), 1 (Medium), or 2 (High), got: " + soilLevel);
         }
     }
 
@@ -160,15 +168,13 @@ public class StateManager {
         }
         if (assignment.length != numPlots) {
             throw new IllegalArgumentException(
-                "assignment length must equal numPlots (" + numPlots + "), got: " + assignment.length
-            );
+                    "assignment length must equal numPlots (" + numPlots + "), got: " + assignment.length);
         }
         for (int i = 0; i < assignment.length; i++) {
             if (assignment[i] < 0 || assignment[i] >= numCrops) {
                 throw new IllegalArgumentException(
-                    "assignment[" + i + "] = " + assignment[i] +
-                    " is out of range [0, " + numCrops + ")"
-                );
+                        "assignment[" + i + "] = " + assignment[i] +
+                                " is out of range [0, " + numCrops + ")");
             }
         }
     }

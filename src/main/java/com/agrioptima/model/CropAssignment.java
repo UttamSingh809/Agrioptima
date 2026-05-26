@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 /**
  * Represents a single decision — which crops to plant in the current season.
- * This intermediate model separates validation logic from the actual state transitions.
+ * This intermediate model separates validation logic from the actual state
+ * transitions.
  * It is strictly immutable to ensure safe exploration within the DP solver.
  */
 public class CropAssignment {
@@ -16,7 +17,8 @@ public class CropAssignment {
 
     /**
      * Constructs a new crop assignment decision.
-     * Applies defensive copying to the array to prevent external mutation during DP search.
+     * Applies defensive copying to the array to prevent external mutation during DP
+     * search.
      */
     public CropAssignment(int season, int[] cropIds, int totalProfit, int totalWater) {
         this.season = season;
@@ -29,9 +31,17 @@ public class CropAssignment {
 
     // --- Getters ---
 
-    public int getSeason() { return season; }
-    public int getTotalProfit() { return totalProfit; }
-    public int getTotalWater() { return totalWater; }
+    public int getSeason() {
+        return season;
+    }
+
+    public int getTotalProfit() {
+        return totalProfit;
+    }
+
+    public int getTotalWater() {
+        return totalWater;
+    }
 
     /**
      * Returns a copy of the assigned crop IDs to maintain encapsulation.

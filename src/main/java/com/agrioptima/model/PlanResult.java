@@ -3,8 +3,10 @@ package com.agrioptima.model;
 import java.util.Arrays;
 
 /**
- * Represents the final result of the DP solver — the optimal plan plus performance metrics.
- * This class is strictly immutable to ensure the calculated schedule cannot be accidentally
+ * Represents the final result of the DP solver — the optimal plan plus
+ * performance metrics.
+ * This class is strictly immutable to ensure the calculated schedule cannot be
+ * accidentally
  * modified by the frontend or other components after optimization is complete.
  */
 public class PlanResult {
@@ -22,8 +24,8 @@ public class PlanResult {
      * Performs a deep copy of the 2D plan array to guarantee immutability.
      */
     public PlanResult(int totalProfit, int waterUsed, int waterUsedPercent,
-                      int soilHealthChange, String[][] plan,
-                      double riskScore, long computationTimeMs) {
+            int soilHealthChange, String[][] plan,
+            double riskScore, long computationTimeMs) {
         this.totalProfit = totalProfit;
         this.waterUsed = waterUsed;
         this.waterUsedPercent = waterUsedPercent;
@@ -55,15 +57,33 @@ public class PlanResult {
 
     // --- Getters ---
 
-    public int getTotalProfit() { return totalProfit; }
-    public int getWaterUsed() { return waterUsed; }
-    public int getWaterUsedPercent() { return waterUsedPercent; }
-    public int getSoilHealthChange() { return soilHealthChange; }
-    public double getRiskScore() { return riskScore; }
-    public long getComputationTimeMs() { return computationTimeMs; }
+    public int getTotalProfit() {
+        return totalProfit;
+    }
+
+    public int getWaterUsed() {
+        return waterUsed;
+    }
+
+    public int getWaterUsedPercent() {
+        return waterUsedPercent;
+    }
+
+    public int getSoilHealthChange() {
+        return soilHealthChange;
+    }
+
+    public double getRiskScore() {
+        return riskScore;
+    }
+
+    public long getComputationTimeMs() {
+        return computationTimeMs;
+    }
 
     /**
      * Returns a deep copy of the full schedule.
+     * 
      * @return 2D array representing the plan.
      */
     public String[][] getPlan() {
@@ -108,8 +128,7 @@ public class PlanResult {
     public String getSummary() {
         return String.format(
                 "Total Profit: ₹%,d | Water Used: %d%% | Soil Health: %+d%% | Risk: %.1f%%",
-                totalProfit, waterUsedPercent, soilHealthChange, riskScore
-        );
+                totalProfit, waterUsedPercent, soilHealthChange, riskScore);
     }
 
     /**

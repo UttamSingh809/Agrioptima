@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AgriOptima - Your Smart Crop Plan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .hero { background: white; border-radius: 30px; padding: 30px 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .farm-icon { font-size: 60px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        h1 { color: #2d3748; font-size: 24px; margin-bottom: 8px; }
+        .date { color: #718096; font-size: 14px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: transform 0.3s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-emoji { font-size: 35px; margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: bold; color: #2d3748; margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        .progress-section { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .progress-title { font-size: 16px; font-weight: 600; color: #2d3748; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .progress-bar-container { background: #e2e8f0; border-radius: 20px; height: 30px; overflow: hidden; margin-bottom: 15px; }
+        .progress-bar { background: linear-gradient(90deg, #48bb78, #38a169); height: 100%; border-radius: 20px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-size: 12px; font-weight: bold; transition: width 1s ease; }
+        .schedule-section { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .season-card { background: #f7fafc; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #48bb78; transition: all 0.3s; }
+        .season-card:hover { transform: translateX(5px); }
+        .season-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: bold; }
+        .season-name { font-size: 16px; color: #2d3748; }
+        .season-year { background: #48bb78; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .plot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .plot-item { background: white; padding: 10px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .plot-item:hover { transform: scale(1.05); }
+        .plot-number { font-size: 11px; color: #718096; margin-bottom: 5px; }
+        .crop-name { font-size: 14px; font-weight: 600; color: #2d3748; }
+        .crop-emoji { font-size: 24px; display: block; margin-bottom: 5px; }
+        .action-buttons { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 20px; }
+        .btn { border: none; padding: 14px; border-radius: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #48bb78; color: white; padding: 12px 24px; border-radius: 50px; font-size: 14px; display: none; z-index: 1000; }
+        .loader { text-align: center; padding: 40px; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #48bb78; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } .action-buttons { grid-template-columns: 1fr; } .plot-grid { grid-template-columns: 1fr; } }
+        @media print { .action-buttons, .toast { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            <div class="loader">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: white;">Loading your smart crop plan...</p>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Get data from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedData = urlParams.get('data');
+        
+        if (encodedData) {
+            try {
+                const jsonStr = decodeURIComponent(encodedData);
+                const planData = JSON.parse(jsonStr);
+                console.log('Plan loaded successfully');
+                renderDashboard(planData);
+            } catch(e) {
+                console.error('Failed to parse:', e);
+                showError('Invalid plan data. Please scan a valid QR code.');
+            }
+        } else {
+            showError('No plan data found. Please scan a valid QR code.');
+        }
+        
+        function renderDashboard(data) {
+            // Extract data with fallbacks
+            const schedule = data.schedule || [];
+            const totalProfit = data.profit || '₹0';
+            const waterUsed = data.water || '0';
+            const soilChange = data.soil || 0;
+            const numPlots = data.plots || 4;
+            const years = data.years || 2;
+            const waterBudget = data.waterBudget || 10000;
+            
+            const waterUsedNum = parseInt(waterUsed.toString().replace(/[^0-9]/g, '')) || 0;
+            const waterPercentage = Math.min((waterUsedNum / waterBudget) * 100, 100);
+            
+            // Get all unique crops for rotation summary
+            const allCrops = [];
+            schedule.forEach(season => {
+                season.forEach(crop => {
+                    if (crop && crop !== 'Fallow' && !allCrops.includes(crop)) allCrops.push(crop);
+                });
+            });
+            
+            const profitPerPlot = parseInt(totalProfit.toString().replace(/[^0-9]/g, '')) / numPlots;
+            
+            const html = `
+                <div class="hero">
+                    <div class="farm-icon">🌾🌱🌿</div>
+                    <h1>🌾 AgriOptima Smart Plan</h1>
+                    <p class="date">📅 Generated: ${new Date(data.date).toLocaleString()}</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: #48bb78;">✓ Optimized for maximum profit & sustainability</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-emoji">💰</div>
+                        <div class="stat-value">${totalProfit}</div>
+                        <div class="stat-label">Total Projected Profit</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-emoji">💧</div>
+                        <div class="stat-value">${waterUsedNum.toLocaleString()} L</div>
+                        <div class="stat-label">Total Water Usage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-emoji">🌱</div>
+                        <div class="stat-value">${soilChange >= 0 ? '+' : ''}${soilChange}</div>
+                        <div class="stat-label">Soil Health Change</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-emoji">📊</div>
+                        <div class="stat-value">₹${Math.round(profitPerPlot).toLocaleString()}</div>
+                        <div class="stat-label">Profit per Plot</div>
+                    </div>
+                </div>
+                
+                <div class="progress-section">
+                    <div class="progress-title">
+                        <span>💧</span> Water Budget Utilization
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${waterPercentage}%">
+                            ${Math.round(waterPercentage)}%
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #718096;">
+                        ${waterUsedNum.toLocaleString()} L used out of ${waterBudget.toLocaleString()} L budget
+                    </div>
+                </div>
+                
+                <div class="schedule-section">
+                    <div class="progress-title">
+                        <span>📅</span> Seasonal Planting Schedule
+                        <span style="display:inline-block;background:#fef5e7;color:#d69e2e;padding:4px 8px;border-radius:12px;font-size:11px;margin-left:8px;">${schedule.length} Seasons • ${numPlots} Plots</span>
+                    </div>
+                    ${schedule.map((season, idx) => {
+                        const year = Math.floor(idx / 2) + 1;
+                        const seasonType = idx % 2 === 0 ? 'Kharif' : 'Rabi';
+                        const seasonEmoji = idx % 2 === 0 ? '🌧️' : '☀️';
+                        const seasonColor = idx % 2 === 0 ? '#4299e1' : '#ed8936';
+                        
+                        return `
+                            <div class="season-card" style="border-left-color: ${seasonColor}">
+                                <div class="season-header">
+                                    <span class="season-name">${seasonEmoji} ${seasonType} Season</span>
+                                    <span class="season-year">Year ${year}</span>
+                                </div>
+                                <div class="plot-grid">
+                                    ${season.map((crop, plotIdx) => {
+                                        const cropEmoji = getCropEmoji(crop);
+                                        const isFallow = crop === 'Fallow';
+                                        return `
+                                            <div class="plot-item" style="${isFallow ? 'opacity: 0.7' : ''}">
+                                                <div class="plot-number">Plot ${plotIdx + 1}</div>
+                                                <span class="crop-emoji">${cropEmoji}</span>
+                                                <div class="crop-name">${crop || 'Fallow'}</div>
+                                                ${isFallow ? '<small style="color: #999;">Resting</small>' : ''}
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="downloadCSV()">
+                        📊 Export CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadJSON()">
+                        💾 Export JSON
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        🖨️ Print Report
+                    </button>
+                    <button class="btn btn-secondary" onclick="sharePlan()">
+                        📤 Share Plan
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('content').innerHTML = html;
+            window.planData = data;
+        }
+        
+        function getCropEmoji(crop) {
+            const emojiMap = {
+                'Rice': '🌾',
+                'Wheat': '🌾',
+                'Soybean': '🥜',
+                'Maize': '🌽',
+                'Fallow': '🧹',
+                'Cotton': '🌿',
+                'Sugarcane': '🎋',
+                'Barley': '🌾',
+                'Oats': '🌾',
+                'Potato': '🥔',
+                'Tomato': '🍅',
+                'Onion': '🧅'
+            };
+            return emojiMap[crop] || '🌱';
+        }
+        
+        function downloadCSV() {
+            if (!window.planData || !window.planData.schedule) {
+                showToast('No data available');
+                return;
+            }
+            
+            const schedule = window.planData.schedule;
+            const numPlots = window.planData.plots || 4;
+            
+            let csv = 'Season';
+            for (let i = 1; i <= numPlots; i++) {
+                csv += `,Plot ${i}`;
+            }
+            csv += '\n';
+            
+            schedule.forEach((season, idx) => {
+                const year = Math.floor(idx / 2) + 1;
+                const seasonType = idx % 2 === 0 ? 'Kharif' : 'Rabi';
+                csv += `"Year ${year} - ${seasonType}"`;
+                season.forEach(crop => {
+                    csv += `,"${crop || 'Fallow'}"`;
+                });
+                csv += '\n';
+            });
+            
+            // Add summary
+            csv += '\n"Summary Metrics"\n';
+            csv += `"Total Profit",${window.planData.profit}\n`;
+            csv += `"Water Used",${window.planData.water}\n`;
+            csv += `"Soil Health Change",${window.planData.soil}\n`;
+            
+            downloadFile(csv, `agrioptima_plan_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+            showToast('📊 CSV exported successfully!');
+        }
+        
+        function downloadJSON() {
+            if (!window.planData) {
+                showToast('No data available');
+                return;
+            }
+            
+            const jsonStr = JSON.stringify(window.planData, null, 2);
+            downloadFile(jsonStr, `agrioptima_backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+            showToast('💾 JSON backup downloaded!');
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+        
+        function sharePlan() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AgriOptima Crop Plan',
+                    text: `My optimized crop plan with ${window.planData?.profit} projected profit!`,
+                    url: window.location.href
+                }).catch(() => copyToClipboard());
+            } else {
+                copyToClipboard();
+            }
+        }
+        
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast('✅ Link copied to clipboard!');
+            }).catch(() => {
+                showToast('⚠️ Press Ctrl+C to copy the link');
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="hero">
+                    <div class="farm-icon">⚠️</div>
+                    <h1>Error Loading Plan</h1>
+                    <p style="color: #e53e3e; margin: 15px 0;">${message}</p>
+                    <button class="btn btn-primary" onclick="window.location.href='/'">
+                        Go to Homepage
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
